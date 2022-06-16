@@ -1,11 +1,7 @@
 package org.springframework.cloud.config.monitor;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.bus.event.Destination;
 import org.springframework.cloud.bus.event.RefreshRemoteApplicationEvent;
-import org.springframework.cloud.config.monitor.PropertyPathNotification;
-import org.springframework.cloud.config.monitor.PropertyPathNotificationExtractor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.http.HttpHeaders;
@@ -20,31 +16,36 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping(path = "${spring.cloud.config.monitor.endpoint.path:}/monitor")
 public class PropertyPathEndpoint implements ApplicationEventPublisherAware {
 
-    private static Log log = LogFactory.getLog(PropertyPathEndpoint.class);
-
-    private final PropertyPathNotificationExtractor extractor;
-
+    public static final String PATH = "path";
+    public static final String APPLICATION = "application";
+    public static final String EMPTY = "";
+    public static final String DASH = "-";
+    public static final String SEMI_CLONE = ":";
+    public static final String WILD_CARD = "*";
     private ApplicationEventPublisher applicationEventPublisher;
 
-    private String busId;
+    private final PropertyPathNotificationExtractor extractor;
+    private final Destination.Factory destinationFactory;
+    private final String busId;
 
-    public PropertyPathEndpoint(PropertyPathNotificationExtractor extractor, String busId) {
+    public PropertyPathEndpoint(PropertyPathNotificationExtractor extractor, String busId,
+                                Destination.Factory destinationFactory) {
         this.extractor = extractor;
+        this.destinationFactory = destinationFactory;
         this.busId = busId;
-    }
-
-    /* for testing */ String getBusId() {
-        return this.busId;
     }
 
     @Override
@@ -54,61 +55,93 @@ public class PropertyPathEndpoint implements ApplicationEventPublisherAware {
 
     @PostMapping
     public Set<String> notifyByPath(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> request) {
-        PropertyPathNotification notification = this.extractor.extract(headers, request);
-        if (notification != null) {
+        final PropertyPathNotification notification = this.extractor.extract(headers, request);
 
-            Set<String> services = new LinkedHashSet<>();
-
-            for (String path : notification.getPaths()) {
-                services.addAll(guessServiceName(path));
-            }
-            if (this.applicationEventPublisher != null) {
-                for (String service : services) {
-                    log.info("Refresh for: " + service);
-                    this.applicationEventPublisher
-                            .publishEvent(new RefreshRemoteApplicationEvent(this, this.busId, service));
-                }
-                return services;
-            }
-
+        if (Objects.isNull(notification)) {
+            return Collections.emptySet();
         }
-        return Collections.emptySet();
+
+
+        final Set<String> services = new LinkedHashSet<>();
+
+        for (String path : notification.getPaths()) {
+            services.addAll(guessServiceName(path));
+        }
+
+        if (Objects.isNull(this.applicationEventPublisher)) {
+            return Collections.emptySet();
+        }
+
+        for (String service : services) {
+            this.applicationEventPublisher
+                    .publishEvent(new RefreshRemoteApplicationEvent(this, this.busId, getDestination(service)));
+        }
+
+        return services;
+    }
+
+    private Destination getDestination(String original) {
+        return destinationFactory.getDestination(original);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public Set<String> notifyByForm(@RequestHeader HttpHeaders headers, @RequestParam("path") List<String> request) {
-        Map<String, Object> map = new HashMap<>();
-        String key = "path";
-        map.put(key, request);
+    public Set<String> notifyByForm(@RequestHeader HttpHeaders headers, @RequestParam(PATH) List<String> request) {
+        final Map<String, Object> map = new HashMap<>();
+        map.put(PATH, request);
         return notifyByPath(headers, map);
     }
 
     private Set<String> guessServiceName(String path) {
-        Set<String> services = new LinkedHashSet<>();
-        if (path != null) {
-            String stem = StringUtils.stripFilenameExtension(StringUtils.getFilename(StringUtils.cleanPath(path)));
-            // TODO: correlate with service registry
-            int index = stem.indexOf("-");
-            while (index >= 0) {
-                String name = stem.substring(0, index);
-                String profile = stem.substring(index + 1);
-                if ("application".equals(name)) {
-                    services.add("*:" + profile);
-                }
-                else if (!name.startsWith("application")) {
-                    services.add(name + ":" + profile);
-                    services.add(name);
-                }
-                index = stem.indexOf("-", index + 1);
-            }
-            String name = stem;
-            if ("application".equals(name)) {
-                services.add("*");
-            }
-            else if (!name.startsWith("application")) {
-                services.add(name);
-            }
+        final Set<String> services = new LinkedHashSet<>();
+
+        if (Objects.isNull(path)) {
+            return services;
         }
+
+        final String stem = Optional.of(path)
+                .map(StringUtils::cleanPath)
+                .map(StringUtils::getFilename)
+                .map(StringUtils::stripFilenameExtension)
+                .orElse(EMPTY);
+
+        final AtomicInteger index = new AtomicInteger(stem.indexOf(DASH));
+
+        while (index.get() >= 0) {
+            String name = stem.substring(0, index.get());
+            String profile = stem.substring(index.get() + 1);
+
+            services.addAll(getServices(name, profile));
+
+            index.set(stem.indexOf(DASH, index.get() + 1));
+        }
+
+        if (APPLICATION.equals(stem)) {
+            services.add(WILD_CARD);
+            return services;
+        }
+
+        if (!stem.startsWith(APPLICATION)) {
+            services.add(stem);
+            return services;
+        }
+
+        return services;
+    }
+
+    private Set<String> getServices(String name, String profile) {
+        final Set<String> services = new HashSet<>();
+
+        if (APPLICATION.equals(name)) {
+            services.add(WILD_CARD + SEMI_CLONE + profile);
+            return services;
+        }
+
+        if (!name.startsWith(APPLICATION)) {
+            services.add(name + SEMI_CLONE + profile);
+            services.add(name);
+            return services;
+        }
+
         return services;
     }
 
