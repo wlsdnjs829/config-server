@@ -9,7 +9,9 @@ spring:
         git:
           uri: https://github.com/wlsdnjs829/config-server
           force-pull: true
-          search-paths: '{application}'
+          search-paths:
+           - '{application}'
+           - '{profiles}/*'
     bus:
       enabled: true
       refresh:
@@ -17,15 +19,11 @@ spring:
       env:
         enabled: true
 
-
   rabbitmq:
     host: 127.0.0.1
     port: 5672
     username: guest
     password: guest
-
-  application:
-    name: CONFIG-SERVER
 
   main:
     allow-bean-definition-overriding: true

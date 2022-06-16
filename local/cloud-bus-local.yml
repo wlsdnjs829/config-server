@@ -3,4 +3,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: busrefresh, info
+        include: busrefresh

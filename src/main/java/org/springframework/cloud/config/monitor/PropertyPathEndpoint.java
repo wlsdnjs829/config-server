@@ -38,13 +38,10 @@ public class PropertyPathEndpoint implements ApplicationEventPublisherAware {
     private ApplicationEventPublisher applicationEventPublisher;
 
     private final PropertyPathNotificationExtractor extractor;
-    private final Destination.Factory destinationFactory;
     private final String busId;
 
-    public PropertyPathEndpoint(PropertyPathNotificationExtractor extractor, String busId,
-                                Destination.Factory destinationFactory) {
+    public PropertyPathEndpoint(PropertyPathNotificationExtractor extractor, String busId) {
         this.extractor = extractor;
-        this.destinationFactory = destinationFactory;
         this.busId = busId;
     }
 
@@ -54,6 +51,7 @@ public class PropertyPathEndpoint implements ApplicationEventPublisherAware {
     }
 
     @PostMapping
+    @SuppressWarnings("deprecation")
     public Set<String> notifyByPath(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> request) {
         final PropertyPathNotification notification = this.extractor.extract(headers, request);
 
@@ -74,14 +72,10 @@ public class PropertyPathEndpoint implements ApplicationEventPublisherAware {
 
         for (String service : services) {
             this.applicationEventPublisher
-                    .publishEvent(new RefreshRemoteApplicationEvent(this, this.busId, getDestination(service)));
+                    .publishEvent(new RefreshRemoteApplicationEvent(this, this.busId, service));
         }
 
         return services;
-    }
-
-    private Destination getDestination(String original) {
-        return destinationFactory.getDestination(original);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
