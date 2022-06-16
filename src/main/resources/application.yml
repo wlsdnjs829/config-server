@@ -6,5 +6,6 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/wlsdnjs829/config-server/properties
+          uri: https://github.com/wlsdnjs829/config-server
           force-pull: true
+          search-paths: classpath:/properties
