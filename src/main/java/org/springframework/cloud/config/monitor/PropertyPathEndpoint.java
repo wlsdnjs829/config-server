@@ -1,5 +1,7 @@
-package com.jinwon.configserver.monitor;
+package org.springframework.cloud.config.monitor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.bus.event.Destination;
 import org.springframework.cloud.bus.event.RefreshRemoteApplicationEvent;
 import org.springframework.cloud.config.monitor.PropertyPathNotification;
@@ -28,17 +30,21 @@ import java.util.Set;
 @RequestMapping(path = "${spring.cloud.config.monitor.endpoint.path:}/monitor")
 public class PropertyPathEndpoint implements ApplicationEventPublisherAware {
 
+    private static Log log = LogFactory.getLog(PropertyPathEndpoint.class);
+
     private final PropertyPathNotificationExtractor extractor;
-    private final Destination.Factory destinationFactory;
-    private final String busId;
 
     private ApplicationEventPublisher applicationEventPublisher;
 
-    public PropertyPathEndpoint(PropertyPathNotificationExtractor extractor, String busId,
-                                Destination.Factory destinationFactory) {
+    private String busId;
+
+    public PropertyPathEndpoint(PropertyPathNotificationExtractor extractor, String busId) {
         this.extractor = extractor;
         this.busId = busId;
-        this.destinationFactory = destinationFactory;
+    }
+
+    /* for testing */ String getBusId() {
+        return this.busId;
     }
 
     @Override
@@ -47,42 +53,38 @@ public class PropertyPathEndpoint implements ApplicationEventPublisherAware {
     }
 
     @PostMapping
-    public Set<Destination> notifyByPath(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> request) {
+    public Set<String> notifyByPath(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> request) {
         PropertyPathNotification notification = this.extractor.extract(headers, request);
+        if (notification != null) {
 
-        if (Objects.isNull(notification)) {
-            return Collections.emptySet();
+            Set<String> services = new LinkedHashSet<>();
+
+            for (String path : notification.getPaths()) {
+                services.addAll(guessServiceName(path));
+            }
+            if (this.applicationEventPublisher != null) {
+                for (String service : services) {
+                    log.info("Refresh for: " + service);
+                    this.applicationEventPublisher
+                            .publishEvent(new RefreshRemoteApplicationEvent(this, this.busId, service));
+                }
+                return services;
+            }
+
         }
-
-
-        final Set<Destination> services = new LinkedHashSet<>();
-
-        for (String path : notification.getPaths()) {
-            services.addAll(guessServiceName(path));
-        }
-
-        if (Objects.isNull(this.applicationEventPublisher)) {
-            return Collections.emptySet();
-        }
-
-        for (Destination destination : services) {
-            this.applicationEventPublisher
-                    .publishEvent(new RefreshRemoteApplicationEvent(this, this.busId, destination));
-        }
-
-        return services;
+        return Collections.emptySet();
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public Set<Destination> notifyByForm(@RequestHeader HttpHeaders headers, @RequestParam("path") List<String> request) {
+    public Set<String> notifyByForm(@RequestHeader HttpHeaders headers, @RequestParam("path") List<String> request) {
         Map<String, Object> map = new HashMap<>();
         String key = "path";
         map.put(key, request);
         return notifyByPath(headers, map);
     }
 
-    private Set<Destination> guessServiceName(String path) {
-        Set<Destination> services = new LinkedHashSet<>();
+    private Set<String> guessServiceName(String path) {
+        Set<String> services = new LinkedHashSet<>();
         if (path != null) {
             String stem = StringUtils.stripFilenameExtension(StringUtils.getFilename(StringUtils.cleanPath(path)));
             // TODO: correlate with service registry
@@ -91,25 +93,22 @@ public class PropertyPathEndpoint implements ApplicationEventPublisherAware {
                 String name = stem.substring(0, index);
                 String profile = stem.substring(index + 1);
                 if ("application".equals(name)) {
-                    services.add(getDestination("*:" + profile));
-                } else if (!name.startsWith("application")) {
-                    services.add(getDestination(name + ":" + profile));
-                    services.add(getDestination(name));
+                    services.add("*:" + profile);
+                }
+                else if (!name.startsWith("application")) {
+                    services.add(name + ":" + profile);
                 }
                 index = stem.indexOf("-", index + 1);
             }
             String name = stem;
             if ("application".equals(name)) {
-                services.add(getDestination("*"));
-            } else if (!name.startsWith("application")) {
-                services.add(getDestination(name));
+                services.add("*");
+            }
+            else if (!name.startsWith("application")) {
+                services.add(name);
             }
         }
         return services;
-    }
-
-    protected Destination getDestination(String original) {
-        return destinationFactory.getDestination(original);
     }
 
 }
