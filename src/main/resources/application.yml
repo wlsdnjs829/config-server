@@ -10,7 +10,6 @@ spring:
           uri: https://github.com/wlsdnjs829/config-server
           force-pull: true
           search-paths: '{application}'
-      name: sso
     bus:
       enabled: true
       refresh:
