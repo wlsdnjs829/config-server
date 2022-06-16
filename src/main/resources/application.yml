@@ -12,6 +12,10 @@ spring:
           search-paths: '{application}'
     bus:
       enabled: true
+      refresh:
+        enabled: true
+      env:
+        enabled: true
 
   rabbitmq:
     host: 127.0.0.1
