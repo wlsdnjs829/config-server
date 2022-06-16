@@ -19,6 +19,5 @@ spring:
 management:
   endpoints:
     web:
-      base-path: /actuator
       exposure:
-        include: [ 'busrefresh' ]
+        include: busrefresh
