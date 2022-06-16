@@ -26,7 +26,7 @@ spring:
       jwt:
         alias: server_private
         code: mid@sit
-        expired: 1
+        expired: 13
         public: /publicKey.txt
         private: /server.jks
 
