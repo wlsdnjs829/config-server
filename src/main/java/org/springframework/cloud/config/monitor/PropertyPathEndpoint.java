@@ -97,6 +97,7 @@ public class PropertyPathEndpoint implements ApplicationEventPublisherAware {
                 }
                 else if (!name.startsWith("application")) {
                     services.add(name + ":" + profile);
+                    services.add(name);
                 }
                 index = stem.indexOf("-", index + 1);
             }
