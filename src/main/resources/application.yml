@@ -9,9 +9,7 @@ spring:
         git:
           uri: https://github.com/wlsdnjs829/config-server
           force-pull: true
-          search-paths:
-           - '{application}'
-           - '{profiles}/*'
+          search-paths: '{application}'
     bus:
       enabled: true
       refresh:
