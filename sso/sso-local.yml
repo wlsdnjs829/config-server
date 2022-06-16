@@ -50,4 +50,4 @@ management:
     web:
       base-path: /actuator
       exposure:
-        include: [ 'bus-refresh' ]
+        include: [ 'busrefresh' ]
