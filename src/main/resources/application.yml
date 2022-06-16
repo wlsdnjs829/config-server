@@ -26,6 +26,9 @@ spring:
   application:
     name: CONFIG-SERVER
 
+  main:
+    allow-bean-definition-overriding: true
+
 management:
   endpoints:
     web:
