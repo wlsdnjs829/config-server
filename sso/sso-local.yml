@@ -28,12 +28,6 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
-  rabbitmq:
-    host: 127.0.0.1
-    port: 5672
-    username: guest
-    password: guest
-
 server:
   port: ${PORT:9000}
 
