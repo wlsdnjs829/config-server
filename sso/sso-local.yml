@@ -25,7 +25,7 @@ spring:
     oauth2:
       jwt:
         alias: server_private
-        code: mid@sit
+        code: mid@sit2
         expired: 1
         public: /publicKey.txt
         private: /server.jks
@@ -48,5 +48,6 @@ server:
 management:
   endpoints:
     web:
+      base-path: /actuator
       exposure:
-        include: busrefresh
+        include: [ 'bus-refresh' ]

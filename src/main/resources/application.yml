@@ -9,3 +9,16 @@ spring:
           uri: https://github.com/wlsdnjs829/config-server
           force-pull: true
           search-paths: '{application}'
+
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: [ 'bus-refresh' ]
