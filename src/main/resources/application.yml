@@ -8,4 +8,4 @@ spring:
         git:
           uri: https://github.com/wlsdnjs829/config-server
           force-pull: true
-          search-paths: classpath:/properties
+          search-paths: '{application}'
