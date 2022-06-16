@@ -25,7 +25,7 @@ spring:
     oauth2:
       jwt:
         alias: server_private
-        code: mid@sit2
+        code: mid@sit
         expired: 1
         public: /publicKey.txt
         private: /server.jks
