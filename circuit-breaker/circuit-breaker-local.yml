@@ -1,0 +1,13 @@
+################## CircuitBreaker Settings ####################
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 100
+      minimumNumberOfCalls: 10
+      waitDurationInOpenState: 30000
+      failureRateThreshold: 80
+  instances:
+    API-GATEWAY:
+      baseConfig: default
+    SSO-AUTH-SERVER:
+      baseConfig: default
