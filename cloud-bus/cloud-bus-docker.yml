@@ -1,0 +1,13 @@
+################## Cloud-Bus Settings ####################
+management:
+  endpoints:
+    web:
+      exposure:
+        include: busrefresh
+
+spring:
+  rabbitmq:
+    host: local-rabbit
+    port: 5672
+    username: guest
+    password: guest

@@ -1,0 +1,6 @@
+################## Eureka Configuration ####################
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-peer-1:3001/eureka/, http://eureka-peer-2:3002/eureka/, http://eureka-peer-3:3003/eureka/
+    registry-fetch-interval-seconds: 5
