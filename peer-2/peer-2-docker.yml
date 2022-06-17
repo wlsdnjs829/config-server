@@ -1,16 +1,5 @@
-################## Application Configuration ####################
-spring:
-  application:
-    name: EUREKA-SERVER-CLUSTERED
-
 ################## Eureka-Server Configuration ####################
 eureka:
-  instance:
-    hostname: localhost
   client:
-    registerWithEureka: true
-    fetchRegistry: true
     serviceUrl:
-      defaultZone: http://eureka-peer-1:3002/eureka/, http://eureka-peer-3:3003/eureka/
-  server:
-    response-cache-update-interval-ms: 1000
+      defaultZone: http://eureka-peer-2:3001/eureka/, http://eureka-peer-3:3003/eureka/

@@ -2,4 +2,4 @@
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka-peer-1:3001/eureka/, http://eureka-peer-2:3003/eureka/
+      defaultZone: http://localhost:3002/eureka/, http://localhost:3003/eureka/
