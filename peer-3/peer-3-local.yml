@@ -1,5 +1,7 @@
 ################## Eureka-Server Configuration ####################
 eureka:
+  instance:
+    hostname: localhost
   client:
     serviceUrl:
       defaultZone: http://localhost:3001/eureka/, http://localhost:3002/eureka/

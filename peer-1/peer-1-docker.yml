@@ -1,5 +1,7 @@
 ################## Eureka-Server Configuration ####################
 eureka:
+  instance:
+    hostname: eureka-peer-1
   client:
     serviceUrl:
       defaultZone: http://eureka-peer-2:3002/eureka/, http://eureka-peer-3:3003/eureka/
