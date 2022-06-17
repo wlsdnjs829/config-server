@@ -29,7 +29,7 @@ management:
 spring:
   config:
     activate:
-      on-profile:
+      on-profile: local
   rabbitmq:
     host: localhost
     port: 5672
