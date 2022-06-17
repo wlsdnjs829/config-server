@@ -17,12 +17,6 @@ spring:
       env:
         enabled: true
 
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-
   main:
     allow-bean-definition-overriding: true
 
@@ -31,3 +25,24 @@ management:
     web:
       exposure:
         include: busrefresh
+---
+spring:
+  config:
+    activate:
+      on-profile:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  rabbitmq:
+    host: local-rabbit
+    port: 5672
+    username: guest
+    password: guest

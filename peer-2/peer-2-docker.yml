@@ -1,6 +1,7 @@
 ################## Eureka-Server Configuration ####################
 eureka:
+  client:
     registerWithEureka: true
     fetchRegistry: true
     serviceUrl:
-      defaultZone: http://localhost:3001/eureka/, http://localhost:3002/eureka/
+      defaultZone: http://eureka-peer-1:3002/eureka/, http://eureka-peer-3:3003/eureka/
