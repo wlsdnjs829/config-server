@@ -1,4 +1,5 @@
 ################## Redis Configuration ####################
-redis:
-  host: localhost
-  port: 6379
+spring:
+  redis:
+    host: localhost
+    port: 6379
