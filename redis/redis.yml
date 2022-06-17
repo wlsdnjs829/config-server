@@ -1,0 +1,4 @@
+################## Redis Configuration ####################
+redis:
+  host: localhost
+  port: 6379
