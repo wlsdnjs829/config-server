@@ -12,7 +12,6 @@ spring:
           filters:
             - name: CircuitBreaker
             - name: CustomAuthFilter
-            - name: ForwardedHeadersFilter
           args:
             name: API-GATEWAY
           metadata:
@@ -25,7 +24,6 @@ spring:
             - Path=/auth/**
           filters:
             - name: CircuitBreaker
-            - name: ForwardedHeadersFilter
           args:
             name: SSO-AUTH-SERVER
           metadata:
