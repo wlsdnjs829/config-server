@@ -12,6 +12,7 @@ spring:
           filters:
             - name: CircuitBreaker
             - name: CustomAuthFilter
+            - name: XForwardedRemoteAddressResolver
           args:
             name: API-GATEWAY
           metadata:
@@ -24,6 +25,7 @@ spring:
             - Path=/auth/**
           filters:
             - name: CircuitBreaker
+            - name: XForwardedRemoteAddressResolver
           args:
             name: SSO-AUTH-SERVER
           metadata:
