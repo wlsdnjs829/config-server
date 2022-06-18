@@ -22,7 +22,6 @@ spring:
           predicates:
             - Path=/auth/**
           filters:
-            - RewritePath=/auth/?(?<segment>.*), /$\{segment}
             - name: CircuitBreaker
           args:
             name: SSO-AUTH-SERVER
