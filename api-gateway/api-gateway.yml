@@ -8,7 +8,7 @@ spring:
         - id: EUREKA-SERVER-CLUSTERED
           uri: lb://EUREKA-SERVER-CLUSTERED
           predicates:
-            - Path=/, /eureka/**
+            - Path=/, /eureka/**, /monitor
           filters:
             - name: CircuitBreaker
           args:
