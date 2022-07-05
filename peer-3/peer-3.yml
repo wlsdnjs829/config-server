@@ -1,0 +1,12 @@
+################## Application Configuration ####################
+spring:
+  application:
+    name: EUREKA-SERVER-CLUSTERED
+
+################## Eureka-Server Configuration ####################
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+  server:
+    response-cache-update-interval-ms: 1000

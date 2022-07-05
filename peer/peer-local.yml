@@ -1,4 +1,0 @@
-################## Application Configuration ####################
-spring:
-  application:
-    name: EUREKA-SERVER-CLUSTERED

@@ -1,0 +1,6 @@
+################## Cloud-Bus Settings ####################
+management:
+  endpoints:
+    web:
+      exposure:
+        include: busrefresh

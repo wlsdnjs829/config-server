@@ -8,9 +8,10 @@ spring:
         - id: EUREKA-SERVER-CLUSTERED
           uri: lb://EUREKA-SERVER-CLUSTERED
           predicates:
-            - Path=/
+            - Path=/, /eureka/**, /monitor
           filters:
             - name: CircuitBreaker
+            - name: CustomAuthFilter
           args:
             name: API-GATEWAY
           metadata:
@@ -22,7 +23,6 @@ spring:
           predicates:
             - Path=/auth/**
           filters:
-            - RewritePath=/auth/?(?<segment>.*), /$\{segment}
             - name: CircuitBreaker
           args:
             name: SSO-AUTH-SERVER

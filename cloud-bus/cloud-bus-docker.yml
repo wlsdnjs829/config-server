@@ -1,7 +1,7 @@
 ################## Cloud-Bus Settings ####################
 spring:
   rabbitmq:
-    host: localhost
+    host: local-rabbit
     port: 5672
     username: guest
     password: guest

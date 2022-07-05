@@ -1,0 +1,10 @@
+################## Auth Settings ####################
+spring:
+  security:
+    oauth2:
+      jwt:
+        alias: server_private
+        code: mid@sit
+        expired: 1
+        public: /publicKey.txt
+        private: /server.jks
