@@ -2,11 +2,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.springframework.boot") version "2.7.4"
+    id("com.google.cloud.tools.jib") version "3.1.4"
     id("io.spring.dependency-management") version "1.0.14.RELEASE"
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.jpa") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
-//    kotlin("com.google.cloud.tools.jib") version "2.7.1"
 }
 
 group = "com.jinwon"
@@ -33,23 +33,22 @@ dependencyManagement {
     }
 }
 
-//jib {
-//    from {
-//        image = 'openjdk:17'
-//    }
-//    to {
-//        image = 'ljw0829/config-server'
-//        tags = ['0.1.0']
-//    }
-//    container {
-//        mainClass = 'com.jinwon.configserver.ConfigServerApplication'
-//        creationTime = 'USE_CURRENT_TIMESTAMP'
-//        environment = [USE_PROFILE: "local"]
-//        format = 'OCI'
-//        volumes = ['/tmp']
-//        entrypoint = ['java', '-Dspring.profiles.active=${USE_PROFILE}', '-cp', '/app/resources:/app/classes:/app/libs/*', 'com.jinwon.configserver.ConfigServerApplication']
-//    }
-//}
+jib {
+    from {
+        image = "openjdk:17"
+    }
+    to {
+        image = "ljw0829/config-server"
+        tags = setOf("0.1.0")
+    }
+    container {
+        mainClass = "com.jinwon.configserver.ConfigServerApplication"
+        creationTime = "USE_CURRENT_TIMESTAMP"
+        format = com.google.cloud.tools.jib.api.buildplan.ImageFormat.OCI
+        volumes = listOf("/tmp")
+        entrypoint = listOf("java", "-Dspring.profiles.active=local", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.jinwon.configserver.ConfigServerApplication")
+    }
+}
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
