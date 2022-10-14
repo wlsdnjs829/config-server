@@ -1,13 +1,13 @@
-package com.jinwon.configserver;
+package com.jinwon.configserver
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class ConfigServerApplicationTests {
+internal class ConfigServerApplicationTests {
 
     @Test
-    void contextLoads() {
+    fun contextLoads() {
     }
 
 }
